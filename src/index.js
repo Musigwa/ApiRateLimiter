@@ -1,19 +1,40 @@
 import express from "express";
-
+import swaggerUi from 'swagger-ui-express';
+import { handleSendEmail, handleSendSMS } from './controllers';
+import swaggerDocs from './documentation';
 const app = express();
 
-app.post('/sms', async (req, res) => {
-  const to = req.body.to;
-  const from = req.body.from;
-  const body = req.body.body;
-  const result = await sendSMS(to, from, body);
-  if (result) {
-    res.status(200).send('SMS sent successfully');
-  } else {
-    res.status(500).send('Failed to send SMS');
-  }
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use(express.json());
+
+// Handle 404 errors
+app.use((req, res, next) => {
+  res.status(404).json({ message: '404: Page not found' });
 });
 
-app.listen(3000, () => {
-  console.log('Server started on port 3000');
+// Handle all other errors
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).send({ message: '500: Internal server error' });
+});
+
+// Dummy endpoint for signup requests
+app.post('/users/signup', (req, res) => {
+  console.log('req.body', req.body);
+  res.status(201).json(req.body);
+});
+
+// Dummy endpoint for login requests
+app.post('/users/login', (req, res) => {
+  console.log('req.body', req.body);
+  res.status(200).json(req.body);
+});
+
+app.post('/sms', handleSendSMS);
+app.post('/email', handleSendEmail);
+
+const { SERVER_PORT = 3000 } = process.env;
+
+app.listen(SERVER_PORT, () => {
+  console.log(`Server started on port: ${SERVER_PORT}`);
 });
