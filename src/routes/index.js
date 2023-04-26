@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import multer from "multer";
+import multer from 'multer';
 import { notFoundHandler, requestTimeout, unknownErrorHandler } from './error';
-import serviceRouter from "./service";
-import userRouter from "./user";
+import serviceRouter from './service';
+import userRouter from './user';
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 const appRouter = Router();
 
 // Api request timeout handler
@@ -18,6 +18,5 @@ appRouter.use('/services', serviceRouter);
 appRouter.use(notFoundHandler);
 // Handle all other errors
 appRouter.use(unknownErrorHandler);
-
 
 export default appRouter;

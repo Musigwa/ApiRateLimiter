@@ -18,7 +18,8 @@ export const requestTimeout = (req, res, next) => {
 // Handle all other unhandled errors
 export const unknownErrorHandler = (error, req, res, next) => {
   console.error(error);
-  if (error.status === 408) return res.status(408).json({ message: 'Request Timeout' });
+  if (error.status === 408)
+    return res.status(408).json({ message: 'Request Timeout' });
   next(err);
   const { message = '500: Internal server error', status = 500 } = error;
   return res.status(status).json({ message });

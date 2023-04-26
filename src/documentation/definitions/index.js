@@ -1,4 +1,4 @@
-import userDefs from "./user";
+import userDefs from './user';
 
 export default {
   ...userDefs,

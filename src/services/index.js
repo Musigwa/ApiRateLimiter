@@ -1,4 +1,4 @@
-import twilio from "twilio";
+import twilio from 'twilio';
 import sgMail from '@sendgrid/mail';
 import rateLimit from 'express-rate-limit';
 import * as redis from 'redis';
@@ -7,7 +7,7 @@ const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, SENDGRID_API_KEY } = process.env;
 const { messages } = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
 
 /**
- * This function takes the recipient phone number, sender phone number, and SMS body as arguments. 
+ * This function takes the recipient phone number, sender phone number, and SMS body as arguments.
  * @author Musigwa Pacifique
  * @param {*} to The receipt number to send the message to.
  * @param {*} from The sender's phone number from which the message will be sent
@@ -34,10 +34,15 @@ sgMail.setApiKey(SENDGRID_API_KEY);
  * @param {*} from The sender's email address from which the email will be sent
  * @param {*} subject The subject/headline/reason for the email to send to the recipient.
  * @param {*} body The email message body to send to the recipient.
- * @return {boolean} True if the message was sent successfully. And false otherwise. 
+ * @return {boolean} True if the message was sent successfully. And false otherwise.
  */
 export const sendEmail = async (to, from, subject, body) => {
-  const msg = { to, from, subject, html: body };
+  const msg = {
+    to,
+    from,
+    subject,
+    html: body,
+  };
   try {
     const [first] = await sgMail.send(msg);
     console.log(`Email sent to ${to} with status code: ${first.statusCode}`);
@@ -56,16 +61,19 @@ export const rateLimiter = rateLimit({
   max: MAX_RATE_LIMIT, // maximum requests per minute
   windowMs: WINDOW_MILLISECONDS * 1000, // converted into seconds
   store: new RedisStore({ client: redisClient }),
-  message: `You can only make as many requests as ${MAX_RATE_LIMIT} within ${Math.floor(WINDOW_MILLISECONDS / 60)} minute(s) window. Please try again later.`
+  message: `You can only make as many requests as ${MAX_RATE_LIMIT} within ${Math.floor(
+    WINDOW_MILLISECONDS / 60
+  )} minute(s) window. Please try again later.`,
 });
 
-export const checkRateLimit = (clientId, maxRequests, intervalSeconds) => {
-  return new Promise((resolve, reject) => {
+export const checkRateLimit = (clientId, maxRequests, intervalSeconds) =>
+  new Promise((resolve, reject) => {
     const now = Math.floor(Date.now() / 1000); // Now into seconds
     const key = `client:${clientId}`; // Client ID for the request
     const intervalStart = now - intervalSeconds;
 
-    redisClient.multi()
+    redisClient
+      .multi()
       .zadd(key, now, now)
       .zremrangebyscore(key, 0, intervalStart)
       .zcard(key)
@@ -79,4 +87,3 @@ export const checkRateLimit = (clientId, maxRequests, intervalSeconds) => {
         } else reject(err);
       });
   });
-};

@@ -9,12 +9,13 @@
   },
   "main": "index.js",
   "scripts": {
-    "prebuild": "rm -rf dist",
-    "build": "babel src -d dist",
+    "prebuild": "rm -rf build",
+    "build": "babel src -d build",
     "prestart": "yarn build",
-    "start": "node -r dotenv/config dist",
+    "start": "node -r dotenv/config build",
     "dev": "nodemon -r dotenv/config",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint --ext .js,.json . --fix --ignore-path .gitignore"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
@@ -31,7 +32,12 @@
     "@babel/core": "^7.21.4",
     "@babel/node": "^7.20.7",
     "@babel/preset-env": "^7.21.4",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.2.1",
     "kill-port": "^2.0.1",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "prettier": "^2.8.8"
   }
 }

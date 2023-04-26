@@ -10,7 +10,7 @@ export default {
     version: '1.0.0',
     title: 'Api Rate Limiter',
     termsOfService: '',
-    contact: { name: 'Admin', email: DEV_ADMIN_EMAIL, },
+    contact: { name: 'Admin', email: DEV_ADMIN_EMAIL },
     license: {},
   },
   basePath: '/',

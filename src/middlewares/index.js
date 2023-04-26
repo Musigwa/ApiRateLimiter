@@ -5,12 +5,17 @@ export const slidingWindowLimiter = async (req, res, next) => {
   const intervalSeconds = 60;
   const maxRequestsPerMinute = 100;
   try {
-    const { isRateLimited, resetTime } = await checkRateLimit(clientId, maxRequestsPerMinute, intervalSeconds);
+    const { isRateLimited, resetTime } = await checkRateLimit(
+      clientId,
+      maxRequestsPerMinute,
+      intervalSeconds
+    );
     if (isRateLimited) {
       const delayUntilReset = resetTime * 1000 - Date.now();
       res.set('Retry-After', delayUntilReset);
       return res.status(429).json({ message: 'Too Many Requests' });
-    } else setTimeout(next, delayMs);
+    }
+    setTimeout(next, delayMs);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Internal Server Error' });

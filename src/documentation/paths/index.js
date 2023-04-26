@@ -1,4 +1,4 @@
-import userPaths from "./user";
+import userPaths from './user';
 
 export default {
   ...userPaths,

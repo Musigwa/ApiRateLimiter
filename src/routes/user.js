@@ -9,5 +9,4 @@ userRouter.post('/signup', userController.userSignup);
 // Dummy endpoint for login requests
 userRouter.post('/login', userController.userLogin);
 
-
 export default userRouter;

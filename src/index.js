@@ -1,4 +1,4 @@
-import express from "express";
+import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from './documentation';
 import appRouter from './routes';

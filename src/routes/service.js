@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { serviceController } from '../controllers';
 
-
 const serviceRouter = Router();
 
 serviceRouter.post('/sms', serviceController.handleSendSMS);
