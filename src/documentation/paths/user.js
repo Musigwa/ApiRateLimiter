@@ -3,13 +3,22 @@ export default {
     post: {
       tags: ['Authentication - Authorization'],
       summary: 'Create user account',
-      consumes: ['application/json', 'application/x-www-form-urlencoded'],
+      consumes: ['application/json'],
       produces: ['application/json'],
       parameters: [
-        { in: 'formData', type: 'string', name: 'name', description: "Enter your first name (no title allowed)", required: true, },
-        { in: 'formData', type: 'string', name: 'surname', description: "Enter your last name (space-separate anymore than one names)", required: true, },
-        { in: 'formData', type: 'string', name: 'email', description: "Enter your email address", required: true, },
-        { in: 'formData', type: 'string', name: 'password', description: "Please use a strong password", required: true, },
+        {
+          in: 'body',
+          name: 'body',
+          schema: {
+            type: 'object',
+            properties: {
+              name: { type: 'string', name: 'name', description: "Enter your first name (no title allowed)", required: true, },
+              surname: { type: 'string', name: 'surname', description: "Enter your last name (space-separate anymore than one names)", required: true, },
+              email: { type: 'string', name: 'email', description: "Enter your email address", required: true, },
+              password: { type: 'string', name: 'password', description: "Please use a strong password", required: true, },
+            },
+          },
+        }
       ],
       responses: {
         '201': {

@@ -3,7 +3,6 @@ import paths from './paths';
 
 const { DEV_ADMIN_EMAIL = 'info@apiratelimiter.com' } = process.env;
 
-console.log('DEV_ADMIN_EMAIL', DEV_ADMIN_EMAIL);
 export default {
   swagger: '2.0',
   info: {
