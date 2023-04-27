@@ -5,9 +5,9 @@ export const notFoundHandler = (req, res, next) => {
 
 // Set a timeout of 30 seconds for all requests
 export const requestTimeout = (req, res, next) => {
-  const { API_REQ_TIMEOUT = 30000 } = process.env;
+  const { REQ_INTERVAL_SECS = 30000 } = process.env;
 
-  req.setTimeout(parseInt(API_REQ_TIMEOUT), () => {
+  req.setTimeout(parseInt(REQ_INTERVAL_SECS), () => {
     const error = new Error('Request Timeout');
     error.status = 408;
     next(error);

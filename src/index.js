@@ -2,8 +2,12 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from './documentation';
 import appRouter from './routes';
+import { resetRedis } from './utils';
 
 const app = express();
+
+// Reset the redis cache to remove previous requests counters
+resetRedis('./reset-redis.sh');
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(express.json());
