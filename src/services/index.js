@@ -1,6 +1,4 @@
 import sgMail from '@sendgrid/mail';
-import Redis from 'ioredis';
-import { RateLimiterRedis } from 'rate-limiter-flexible';
 import twilio from 'twilio';
 
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, SENDGRID_API_KEY } = process.env;
@@ -47,17 +45,3 @@ export const sendEmail = async (to, from, subject, body) => {
     return false;
   }
 };
-
-const { MAX_REQ_PER_INTERVAL = 10, REQ_INTERVAL_SECS = 60 } = process.env;
-const maxRequestsPerInterval = parseInt(MAX_REQ_PER_INTERVAL); // Maximum requests allowed per interval
-const intervalSeconds = parseInt(REQ_INTERVAL_SECS); // Interval duration in seconds
-
-export const redisClient = new Redis();
-// Initialize the rate limiter for hard throttle
-export const rateLimiter = (options = {}) =>
-  new RateLimiterRedis({
-    ...options,
-    storeClient: redisClient,
-    points: maxRequestsPerInterval,
-    duration: intervalSeconds,
-  });
