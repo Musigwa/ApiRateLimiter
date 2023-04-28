@@ -5,7 +5,7 @@ const { MONGO_DB_URI } = process.env;
 const dbOptions = { maxPoolSize: 10, autoCreate: true };
 
 export const redisClient = new Redis({ enableOfflineQueue: true });
-export const dbConnection = () => mongoose.connect(MONGO_DB_URI, dbOptions);
+export const dbConnection = mongoose.createConnection(MONGO_DB_URI, dbOptions);
 
 export const resetRedis = async () => {
   try {

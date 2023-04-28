@@ -41,7 +41,13 @@ export const connectDB = async (req, res, next) => {
       console.log('Already connected to MongoDB!');
       next();
     } else {
-      dbConnection.once('open', () => next());
+      dbConnection
+        .on('error', (error) => {
+          console.log('Error connecting to MongoDB:', error.message);
+          error.status = 503;
+          next(error);
+        })
+        .once('open', () => next());
     }
   } catch (error) {
     res.status(503).json({ error: 'Service Unavailable' });
