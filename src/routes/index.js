@@ -1,9 +1,14 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { fixedWindowMiddleware } from '../middlewares';
-import { notFoundHandler, requestTimeout, unknownErrorHandler } from '../middlewares/error';
+import { fixedWindowLimiter } from '../middlewares';
+import {
+  notFoundHandler,
+  requestTimeout,
+  unknownErrorHandler,
+} from '../middlewares/error';
 import serviceRouter from './service';
 import userRouter from './user';
+import { checkAuth } from '../middlewares/auth';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -13,7 +18,7 @@ const appRouter = Router();
 appRouter.use(requestTimeout);
 // The reset of the api routes
 appRouter.use('/users', upload.single('file'), userRouter);
-appRouter.use('/services', fixedWindowMiddleware, serviceRouter);
+appRouter.use('/services', checkAuth, fixedWindowLimiter, serviceRouter);
 
 // Handle 404 errors
 appRouter.use(notFoundHandler);

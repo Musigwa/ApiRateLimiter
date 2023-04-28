@@ -1,26 +1,21 @@
 import Redis from 'ioredis';
 import mongoose from 'mongoose';
 
-const { MONGO_DB_URI } = process.env;
-const dbOptions = { maxPoolSize: 10, autoCreate: true };
+export const redisClient = new Redis({
+  enableOfflineQueue: true,
+  lazyConnect: true,
+});
 
-export const redisClient = new Redis({ enableOfflineQueue: true });
-export const dbConnection = mongoose.createConnection(MONGO_DB_URI, dbOptions);
-
-export const resetRedis = async () => {
-  try {
-    const done = await redisClient.flushall();
-    console.log(`Redis reset: ${done}`);
-  } catch (error) {
-    console.log(`RedisError: ${error}`);
-  }
-};
+export const dbConnection = mongoose.connection;
 
 export const closeDbConnection = async () => {
+  console.log('Shutting down server...');
   try {
-    console.log('MongoDB connection closed.');
+    await redisClient.quit();
+    await dbConnection.close();
+    console.log('All DB connections are closed.');
   } catch (error) {
-    console.log('Closing MongoDB connection failed!', error);
+    console.log('Closing DB connections failed!', error);
   } finally {
     process.exit(process.exitCode ?? 0);
   }

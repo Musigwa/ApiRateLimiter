@@ -1,5 +1,9 @@
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import { dbConnection, redisClient } from '../configs/databases';
+import mongoose from 'mongoose';
+
+const { MONGO_DB_URI } = process.env;
+const dbOptions = { maxPoolSize: 10, autoCreate: true };
 
 const {
   MAX_REQ_PER_INTERVAL = 10,
@@ -34,20 +38,22 @@ const errorMsg = {
     `The ${name} is missing in the request ${category}`,
 };
 
+const dbConnectionErrorHandler = (error) => {
+  console.log('Error connecting to the database:', error.message);
+  error.status = 503;
+  throw error;
+};
 // Set up the MongoDB connection
-export const connectDB = async (req, res, next) => {
+export const connectMongo = async (req, res, next) => {
   try {
     if (dbConnection.readyState === 1) {
       console.log('Already connected to MongoDB!');
       next();
     } else {
-      dbConnection
-        .on('error', (error) => {
-          console.log('Error connecting to MongoDB:', error.message);
-          error.status = 503;
-          next(error);
-        })
-        .once('open', () => next());
+      mongoose
+        .connect(MONGO_DB_URI, dbOptions)
+        .then(() => next())
+        .catch(dbConnectionErrorHandler);
     }
   } catch (error) {
     res.status(503).json({ error: 'Service Unavailable' });
@@ -55,9 +61,28 @@ export const connectDB = async (req, res, next) => {
   }
 };
 
+// Set up the Redis connection
+export const connectRedis = async (req, res, next) => {
+  try {
+    if (redisClient.status === 'ready') {
+      console.log('Already connected to Redis!');
+      next();
+    } else {
+      redisClient
+        .connect()
+        .then(() => next())
+        .catch(dbConnectionErrorHandler);
+    }
+  } catch (error) {
+    res.status(503).json({ error: 'Service Unavailable' });
+    console.error('Failed to connect to Redis', error);
+  }
+};
+
 // Middleware function for throttling (Fixed window)
-export const fixedWindowMiddleware = async (req, res, next) => {
-  const clientId = req.headers['x-client-id'];
+export const fixedWindowLimiter = async (req, res, next) => {
+  // Extract the the clientId (since the authentication middleware sets it) or the their IP address
+  const clientId = req.clientId ?? req.ip;
   try {
     if (clientId) {
       const { remainingPoints, msBeforeNext } =
@@ -75,6 +100,7 @@ export const fixedWindowMiddleware = async (req, res, next) => {
       await hardThrottleLimiter.consume(clientId);
       next();
     } catch (hardError) {
+      console.log('hardError', hardError);
       const headers = {
         'Retry-After': hardError.msBeforeNext / 1000,
         'X-RateLimit-Limit': hardThrottleLimiter.points,
