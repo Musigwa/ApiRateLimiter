@@ -1,5 +1,3 @@
-import { spawn } from 'child_process';
-
 const softLimitStore = {};
 const hardLimitStore = {};
 
@@ -30,17 +28,4 @@ export const softThrottle = (clientId, maxRequests, intervalSeconds) => {
     return retryAfter;
   }
   softLimitStore[key] = [...(softLimitStore[key] || []), now];
-};
-
-export const resetRedis = (filePath) => {
-  const command = spawn(filePath);
-  command.stdout.on('data', (data) => {
-    console.log(`Redis reset: ${data}`);
-  });
-  command.stderr.on('data', (data) => {
-    console.error(`Redis reset error: ${data}`);
-  });
-  command.on('close', (code) => {
-    console.log(`Redis reset process exited with code ${code}`);
-  });
 };

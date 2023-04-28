@@ -1,7 +1,5 @@
-import Redis from 'ioredis';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
-
-const redisClient = new Redis();
+import { dbConnection, redisClient } from '../configs/databases';
 
 const {
   MAX_REQ_PER_INTERVAL = 10,
@@ -36,6 +34,21 @@ const errorMsg = {
     `The ${name} is missing in the request ${category}`,
 };
 
+// Set up the MongoDB connection
+export const connectDB = async (req, res, next) => {
+  try {
+    if (dbConnection.readyState === 1) {
+      console.log('Already connected to MongoDB!');
+      next();
+    } else {
+      dbConnection.once('open', () => next());
+    }
+  } catch (error) {
+    res.status(503).json({ error: 'Service Unavailable' });
+    console.error('Failed to connect to MongoDB', error);
+  }
+};
+
 // Middleware function for throttling (Fixed window)
 export const fixedWindowMiddleware = async (req, res, next) => {
   const clientId = req.headers['x-client-id'];
@@ -46,19 +59,28 @@ export const fixedWindowMiddleware = async (req, res, next) => {
       if (remainingPoints <= 0) {
         const retryAfterSeconds = Math.ceil(msBeforeNext / 1000);
         return res.status(429).json({
-          message: `Too many requests, please try again in ${retryAfterSeconds} seconds`,
+          error: `Too many requests, please try again in ${retryAfterSeconds} seconds`,
         });
       } else next();
-    } else return res.status(400).json({ message: errorMsg.missingData() });
+    } else return res.status(400).json({ error: errorMsg.missingData() });
   } catch (softError) {
     try {
       // Fallback to hard throttle if there is an error with soft throttle
       await hardThrottleLimiter.consume(clientId);
       next();
     } catch (hardError) {
+      const headers = {
+        'Retry-After': hardError.msBeforeNext / 1000,
+        'X-RateLimit-Limit': hardThrottleLimiter.points,
+        'X-RateLimit-Remaining': hardError.remainingPoints,
+        'X-RateLimit-Reset': new Date(
+          Date.now() + hardError.msBeforeNext
+        ).toISOString(),
+      };
+      res.set(headers);
       const retryAfterSeconds = Math.ceil(hardError.msBeforeNext / 1000);
       return res.status(429).json({
-        message: `Too many requests, please try again in ${retryAfterSeconds} seconds`,
+        error: `Too many requests, please try again in ${retryAfterSeconds} seconds`,
       });
     }
   }

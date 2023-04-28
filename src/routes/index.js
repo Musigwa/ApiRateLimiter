@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { fixedWindowMiddleware } from '../middlewares';
-import { notFoundHandler, requestTimeout, unknownErrorHandler } from './error';
+import { notFoundHandler, requestTimeout, unknownErrorHandler } from '../middlewares/error';
 import serviceRouter from './service';
 import userRouter from './user';
 

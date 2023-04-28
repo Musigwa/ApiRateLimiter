@@ -2,17 +2,21 @@ import express from 'express';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocs from './documentation';
 import appRouter from './routes';
-import { resetRedis } from './utils';
+import { connectDB } from './middlewares';
+import { closeDbConnection, resetRedis } from './configs/databases';
+import { requestTimeout } from './middlewares/error';
 
 const app = express();
 
 // Reset the redis cache to remove previous requests counters
-resetRedis('./reset-redis.sh');
+resetRedis();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(appRouter);
+app.use(express.json(), express.urlencoded({ extended: true }));
+app.use(requestTimeout, connectDB, appRouter);
+
+// Handle some necessary operations before the server shutdown
+process.on('SIGINT', closeDbConnection);
 
 const { SERVER_PORT = 3000 } = process.env;
 
