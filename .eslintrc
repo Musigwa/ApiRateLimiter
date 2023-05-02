@@ -1,6 +1,9 @@
 {
   "env": { "node": true,"jest": true, "es6": true },
-  
+  "globals": {
+    "before": true,
+    "after": true
+  },
   "extends": ["eslint:recommended", "plugin:prettier/recommended", "prettier"],
   "plugins": ["prettier", "import"],
   "parserOptions": {

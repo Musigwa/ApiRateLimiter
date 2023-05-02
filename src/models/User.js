@@ -3,6 +3,8 @@ import { Schema } from 'mongoose';
 import { dbConnection } from '../configs/databases';
 import jwt from 'jsonwebtoken';
 
+const { REFRESH_TOKEN_SECRET } = process.env;
+
 const userSchema = new Schema({
   firstName: {
     type: String,
@@ -61,11 +63,16 @@ userSchema.methods.toJSON = function (excludeKeys = []) {
   return user;
 };
 
-userSchema.methods.generateToken = function () {
+userSchema.methods.generateAccessToken = function () {
   const { _id, email } = this;
-  const { JWT_SECRET, JWT_EXPIRY = '1h' } = process.env;
-  const options = { expiresIn: JWT_EXPIRY };
+  const { JWT_SECRET, JWT_EXPIRES_IN = '1h' } = process.env;
+  const options = { expiresIn: JWT_EXPIRES_IN };
   return jwt.sign({ _id, email }, JWT_SECRET, options);
+};
+
+userSchema.methods.generateRefreshToken = function () {
+  const { _id, email } = this;
+  return jwt.sign({ _id, email }, REFRESH_TOKEN_SECRET);
 };
 
 export default dbConnection.model('User', userSchema);

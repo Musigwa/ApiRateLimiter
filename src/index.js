@@ -6,7 +6,7 @@ import { connectMongo, connectRedis } from './middlewares';
 import { closeDbConnection } from './configs/databases';
 import { requestTimeout } from './middlewares/error';
 
-const app = express();
+export const app = express();
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(express.json(), express.urlencoded({ extended: true }));

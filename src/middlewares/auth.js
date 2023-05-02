@@ -1,20 +1,22 @@
 import jwt from 'jsonwebtoken';
+import User from '../models/User';
 
-export const checkAuth = (req, res, next) => {
+export const checkAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer '))
       return res.status(401).json({ error: 'Authentication failed.' });
     const [, token] = authHeader.split(' ');
-    console.log('token', token);
     const { JWT_SECRET } = process.env;
-    console.log('JWT_SECRET', JWT_SECRET);
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log('decoded', decoded);
-    req.clientId = decoded._id;
+    const user = await User.findById(decoded._id);
+    if (!user) throw new Error('Could not authenticate the user');
+    req.user = user;
     next();
   } catch (err) {
-    console.log('error happened', err);
-    return res.status(401).json({ error: 'Invalid authentication data' });
+    let { message = 'Error authenticating the user', status = 401, name } = err;
+    if (name.includes('TokenExpiredError'))
+      message = 'Please consider updating your access information!';
+    return res.status(status).json({ error: message });
   }
 };
