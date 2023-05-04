@@ -1,5 +1,3 @@
 import userDefs from './user';
 
-export default {
-  ...userDefs,
-};
+export default { ...userDefs };

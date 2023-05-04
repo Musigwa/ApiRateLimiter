@@ -1,17 +1,9 @@
-import express from 'express';
 import swaggerUi from 'swagger-ui-express';
-import swaggerDocs from './documentation';
-import appRouter from './routes';
-import { connectMongo, connectRedis } from './middlewares';
-import { closeDbConnection } from './configs/databases';
-import { requestTimeout } from './middlewares/error';
-
-export const app = express();
+import app from './app';
+import { closeDbConnection } from 'configs/databases';
+import swaggerDocs from 'documentation';
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-app.use(express.json(), express.urlencoded({ extended: true }));
-app.use(connectRedis, connectMongo, requestTimeout, appRouter);
-
 // Handle some necessary operations before the server shutdown
 process.on('SIGINT', closeDbConnection);
 

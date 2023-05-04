@@ -1,5 +1,6 @@
 import sgMail from '@sendgrid/mail';
 import twilio from 'twilio';
+import winston from 'winston';
 
 const { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, SENDGRID_API_KEY } = process.env;
 const { messages } = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
@@ -45,3 +46,17 @@ export const sendEmail = async (to, from, subject, body) => {
     return false;
   }
 };
+
+export const winstonLogger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.simple()
+      ),
+    }),
+    new winston.transports.File({ filename: 'logs/combined.log' }),
+  ],
+});

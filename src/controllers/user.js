@@ -1,6 +1,6 @@
-import User from '../models/User';
+import User from 'models/User';
 import bcrypt from 'bcrypt';
-import { UserSchema } from '../validations';
+import { UserSchema } from 'validations';
 
 export const createAccount = async (req, res) => {
   const { email, password, firstName, lastName } = req.body;

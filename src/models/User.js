@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Schema } from 'mongoose';
-import { dbConnection } from '../configs/databases';
+import { dbConnection } from 'configs/databases';
 import jwt from 'jsonwebtoken';
 
 const { REFRESH_TOKEN_SECRET } = process.env;

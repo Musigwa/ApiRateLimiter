@@ -1,14 +1,15 @@
 import request from 'supertest';
-import { app } from '../../../src';
+import app from '../../../src/app';
 import mongoose from 'mongoose';
-import User from '../../../src/models/User';
+import User from 'models/User';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongod = new MongoMemoryServer();
-
 let testUser;
+let server;
 
-before(async () => {
+beforeAll(async () => {
+  server = app.listen(4000); // start the server
   const uri = await mongod.getUri();
   await mongoose.connect(uri, {
     useNewUrlParser: true,
@@ -23,7 +24,8 @@ before(async () => {
   });
 });
 
-after(async () => {
+afterAll(async (done) => {
+  server.close(done); // close the server
   await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
   await mongod.stop();
@@ -31,7 +33,7 @@ after(async () => {
 
 describe('POST /login', () => {
   it('should return a JWT token for a valid user', async () => {
-    const res = await request(app)
+    const res = await request(server)
       .post('users/login')
       .send({ email: 'testuser@test.com', password: 'password123' })
       .expect(200)
@@ -42,7 +44,7 @@ describe('POST /login', () => {
   });
 
   it('should return an error for an invalid user', async () => {
-    const res = await request(app).post('users/login').send({
+    const res = await request(server).post('users/login').send({
       email: 'testuser@test.com',
       password: 'wrongpassword',
     });
@@ -52,7 +54,7 @@ describe('POST /login', () => {
   });
 
   it('should return a JWT token when valid credentials are provided', async () => {
-    const response = await request(app)
+    const response = await request(server)
       .post('users/login')
       .send({ email: 'testuser@example.com', password: 'password' })
       .expect(200);
@@ -60,7 +62,7 @@ describe('POST /login', () => {
   });
 
   it('should return a 401 error when invalid credentials are provided', async () => {
-    await request(app)
+    await request(server)
       .post('users/login')
       .send({ email: 'testuser@example.com', password: 'wrongpassword' })
       .expect(401);
