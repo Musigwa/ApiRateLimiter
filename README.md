@@ -15,8 +15,6 @@ This project is an API rate limiter for SMS and email, built using Node.js and E
   - [Contributing](#contributing)
   - [License](#license)
 
-Sure, that's a great idea. Here's a possible version of the prerequisite section:
-
 ## Prerequisites
 
 Before installing and running this project, make sure you have the following:
