@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { userController } from 'controllers';
+import { authController } from '../controllers';
 
 const userRouter = Router();
 
 // Dummy endpoint for signup requests
-userRouter.post('/signup', userController.createAccount);
+userRouter.post('/signup', authController.createAccount);
 
 // Dummy endpoint for login requests
-userRouter.post('/login', userController.userLogin);
+userRouter.post('/login', authController.userLogin);
 
 export default userRouter;

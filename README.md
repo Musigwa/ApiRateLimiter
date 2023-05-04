@@ -11,7 +11,11 @@ This project is an API rate limiter for SMS and email, built using Node.js and E
   - [Usage](#usage)
   - [Testing](#testing)
   - [Deployment](#deployment)
+  - [API endpoints](#api-endpoints)
+  - [Authentication](#authentication)
+  - [API rate limiting](#api-rate-limiting)
   - [Technologies Used](#technologies-used)
+  - [Contact the author](#contact-the-author)
   - [Contributing](#contributing)
   - [License](#license)
 
@@ -58,7 +62,7 @@ yarn dev
 
 This will start the server in development mode. The API endpoints will be available at `http://localhost:3000`.
 
-The API rate limiter middleware is enabled by default for all routes, limiting the number of requests each user can make per day, based on their IP address. To purchase additional requests, users can make a `POST` request to `/api/purchase-requests`, providing their user ID and the number of requests they want to purchase.
+The API rate limiter middleware is enabled by default for all routes, limiting the number of requests each user can make per day, based on their IP address. To purchase additional requests, users can make a `POST` request to `/services/purchase-requests`, providing their user ID and the number of requests they want to purchase.
 
 ## Testing
 
@@ -86,6 +90,33 @@ yarn start
 
 Make sure you have configured the `.env` variables as well as all the necessary databases to run the app in the production environment.
 
+## API endpoints
+
+1. `POST /auth/signup` - Sign up a user with their name, email and password
+2. `POST /auth/login` - Login a user with their email and password and receive a JWT token.
+
+3. `GET /auth/refresh-token` - Refresh an expired token.
+
+4. `GET /auth/logout` - Log out / invalidated the access token
+
+5. `POST /services/sms` - Send an SMS message to a phone number, requires a valid JWT token.
+
+6. `POST /services/email` - Send an email message to an email address, requires a valid JWT token.
+
+7. `POST /services/purchase-requests` - Send a purchase request to request additional requests.
+
+## Authentication
+
+The API uses JWT tokens for authentication.
+When a user logs in or signs up, a JWT token is returned which must be included in the Authorization header for any requests that require authentication.
+To refresh an expired token, send a request to the `/auth/refresh-token` endpoint with a valid refresh token.
+Tokens can be invalidated by sending a request to the `/auth/logout` endpoint with a valid token.
+
+## API rate limiting
+
+The API includes a rate limiter middleware to limit the number of requests a user can make per minute.
+Users can purchase additional requests once they have exhausted their monthly quota.
+
 ## Technologies Used
 
 The following technologies were used to build this project:
@@ -98,6 +129,13 @@ The following technologies were used to build this project:
 - Twilio
 - Jest
 - Babel
+
+## Contact the author
+
+You can contact me by: 
+1. Email: pacifique.musigwa@gmail.com
+2. Twitter: https://twitter.com/MusigwaP
+3. LinkedIn: https://linkedin.com/in/musigwa-pacifique
 
 ## Contributing
 
