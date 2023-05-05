@@ -4,12 +4,12 @@ import { redisClient } from 'configs/databases';
 
 const {
   MAX_REQ_PER_INTERVAL = 10,
-  INTERVAL_SECONDS = 30,
+  HARD_INTERVAL_SECS = 30,
   SOFT_INTERVAL_SECS = 15,
 } = process.env;
 
 const maxRequestsPerInterval = parseInt(MAX_REQ_PER_INTERVAL); // Maximum requests allowed per interval
-const intervalSeconds = parseInt(INTERVAL_SECONDS); // Interval duration in seconds
+const intervalSeconds = parseInt(HARD_INTERVAL_SECS); // Interval duration in seconds
 const softThrottleIntervalSeconds = parseInt(SOFT_INTERVAL_SECS); // Soft throttle interval duration in seconds
 const softThrottlePoints = Math.floor(maxRequestsPerInterval / 2); // Points for soft throttle rate limiter
 
