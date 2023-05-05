@@ -60,13 +60,13 @@ To start the service locally, run the following command:
 yarn dev
 ```
 
-This will start the server in development mode. The API endpoints will be available at `http://localhost:3000`.
+This will start the server in development mode. The API endpoints will be available at `http://localhost:${PORT}` with default port of `3000` note that you can define your port number in `.env` file as necessary.
 
-The API rate limiter middleware is enabled by default for all routes, limiting the number of requests each user can make per day, based on their IP address. To purchase additional requests, users can make a `POST` request to `/services/purchase-requests`, providing their user ID and the number of requests they want to purchase.
+The API rate limiter middleware is enabled by default for all routes, limiting the number of requests each user can make per day, based on their `X-Client-Id` sent along within the request headers; Defaults to IP address of the requester. To purchase additional requests, users can make a `POST` request to `/services/purchase-requests`, providing their user ID and the number of requests they want to purchase.
 
 ## Testing
 
-To run the unit and integration tests, run the following command:
+To run the automated unit and integration tests, run the following command:
 
 ```
 yarn test
@@ -92,8 +92,8 @@ Make sure you have configured the `.env` variables as well as all the necessary 
 
 ## API endpoints
 
-1. `POST /auth/signup` - Sign up a user with their name, email and password
-2. `POST /auth/login` - Login a user with their email and password and receive a JWT token.
+1. `POST /auth/signup` - Sign up a user with their firstName, lastName, email, and password. You get back the access token in response headers as `X-Access-Token` to use to access secure subsequent requests.
+2. `POST /auth/login` - Login a user with their email and password and receive a JWT token should be sent in response headers as `X-Access-Token`.
 
 3. `GET /auth/refresh-token` - Refresh an expired token.
 
@@ -105,11 +105,13 @@ Make sure you have configured the `.env` variables as well as all the necessary 
 
 7. `POST /services/purchase-requests` - Send a purchase request to request additional requests.
 
+**NB: Please note that the secure endpoints are accessible only when you provide a JWT token in the `Authorization` header as `Bearer ${TOKEN}`.**
+
 ## Authentication
 
 The API uses JWT tokens for authentication.
-When a user logs in or signs up, a JWT token is returned which must be included in the Authorization header for any requests that require authentication.
-To refresh an expired token, send a request to the `/auth/refresh-token` endpoint with a valid refresh token.
+When a user logs in or signs up, a JWT token is returned which must be included in the Authorization header for any requests that require authentication as meantioned earlier.
+To refresh an expired token, send a request to the `/auth/refresh-token` endpoint with a valid refresh token as `X-Refresh-Token` header.
 Tokens can be invalidated by sending a request to the `/auth/logout` endpoint with a valid token.
 
 ## API rate limiting

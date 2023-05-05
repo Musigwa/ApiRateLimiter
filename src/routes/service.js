@@ -1,10 +1,10 @@
-import { Router } from 'express';
 import { serviceController } from 'controllers';
-import { checkAuth, fixedWindowLimiter, prometheusMonitor } from 'middlewares';
+import { Router } from 'express';
+import { checkAuth, prometheusMonitor } from 'middlewares';
 
 const serviceRouter = Router();
 
-serviceRouter.use(checkAuth, fixedWindowLimiter, prometheusMonitor);
+serviceRouter.use(checkAuth, prometheusMonitor);
 serviceRouter.post('/sms', serviceController.handleSendSMS);
 serviceRouter.post('/email', serviceController.handleSendEmail);
 

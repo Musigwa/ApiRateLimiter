@@ -1,6 +1,6 @@
 import { dbConnection, redisClient } from 'configs/databases';
 import mongoose from 'mongoose';
-export { fixedWindowLimiter, prometheusMonitor } from './service';
+export { fixedWindowRateLimiter, prometheusMonitor } from './service';
 export { notFoundHandler, requestTimeout, unknownErrorHandler } from './error';
 export { checkAuth } from './auth';
 

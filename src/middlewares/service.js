@@ -55,7 +55,7 @@ export const prometheusMonitor = (req, res, next) => {
 };
 
 // Middleware function for throttling (Fixed window)
-export const fixedWindowLimiter = async (req, res, next) => {
+export const fixedWindowRateLimiter = async (req, res, next) => {
   // Extract the the clientId (since the authentication middleware sets it) or the their IP address
   const clientId = req.clientId ?? req.ip;
   try {
