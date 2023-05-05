@@ -97,7 +97,7 @@ Make sure you have configured the `.env` variables as well as all the necessary 
 
 3. `GET /auth/refresh-token` - Refresh an expired token.
 
-4. `GET /auth/logout` - Log out / invalidated the access token
+4. `DELETE /auth/logout` - Log out / invalidated the access token
 
 5. `POST /services/sms` - Send an SMS message to a phone number, requires a valid JWT token.
 

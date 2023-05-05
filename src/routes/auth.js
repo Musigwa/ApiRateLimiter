@@ -1,12 +1,14 @@
 import { Router } from 'express';
-import { authController } from '../controllers';
+import { authController } from 'controllers';
+import { userLogout, checkAuth, checkInvalidated } from 'middlewares';
 
-const userRouter = Router();
+const authRouter = Router();
 
-// Dummy endpoint for signup requests
-userRouter.post('/signup', authController.createAccount);
+// Put all unsecured routes here before checkAuth is called
+authRouter.post('/signup', authController.createAccount);
+authRouter.post('/login', authController.userLogin);
+// Secure endpoints
+authRouter.use(checkInvalidated, checkAuth);
+authRouter.delete('/logout', userLogout);
 
-// Dummy endpoint for login requests
-userRouter.post('/login', authController.userLogin);
-
-export default userRouter;
+export default authRouter;

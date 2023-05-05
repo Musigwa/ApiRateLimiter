@@ -6,13 +6,13 @@ export const redisClient = new Redis({
   lazyConnect: true,
 });
 
-export const dbConnection = mongoose.connection;
+export const mongoConnection = mongoose.connection;
 
-export const closeDbConnection = async () => {
+export const closemongoConnection = async () => {
   console.log('Shutting down server...');
   try {
     await redisClient.quit();
-    await dbConnection.close();
+    await mongoConnection.close();
     console.log('All DB connections are closed.');
   } catch (error) {
     console.log('Closing DB connections failed!', error);

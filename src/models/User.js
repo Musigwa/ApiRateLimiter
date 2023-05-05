@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { Schema } from 'mongoose';
-import { dbConnection } from 'configs/databases';
+import { mongoConnection } from 'configs/databases';
 import jwt from 'jsonwebtoken';
 
 const { REFRESH_TOKEN_SECRET } = process.env;
@@ -75,4 +75,4 @@ userSchema.methods.generateRefreshToken = function () {
   return jwt.sign({ _id, email }, REFRESH_TOKEN_SECRET);
 };
 
-export default dbConnection.model('User', userSchema);
+export default mongoConnection.model('User', userSchema);

@@ -1,11 +1,11 @@
 import swaggerUi from 'swagger-ui-express';
 import app from './app';
-import { closeDbConnection } from 'configs/databases';
+import { closemongoConnection } from 'configs/databases';
 import swaggerDocs from 'documentation';
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // Handle some necessary operations before the server shutdown
-process.on('SIGINT', closeDbConnection);
+process.on('SIGINT', closemongoConnection);
 
 const { SERVER_PORT = 3000 } = process.env;
 

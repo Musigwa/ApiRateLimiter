@@ -29,3 +29,8 @@ export const softThrottle = (clientId, maxRequests, intervalSeconds) => {
   }
   softLimitStore[key] = [...(softLimitStore[key] || []), now];
 };
+
+export const testingBehavior = async () => {
+  const resp = await (4 + 5);
+  return resp;
+};

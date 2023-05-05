@@ -1,10 +1,13 @@
 import { serviceController } from 'controllers';
 import { Router } from 'express';
-import { checkAuth, prometheusMonitor } from 'middlewares';
+import { checkAuth, checkInvalidated } from 'middlewares';
 
 const serviceRouter = Router();
 
-serviceRouter.use(checkAuth, prometheusMonitor);
+// Put all unsecured routes here before checkAuth is called
+// .......................................................
+// Secure endpoints
+serviceRouter.use(checkInvalidated, checkAuth);
 serviceRouter.post('/sms', serviceController.handleSendSMS);
 serviceRouter.post('/email', serviceController.handleSendEmail);
 
