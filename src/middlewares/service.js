@@ -1,6 +1,9 @@
 import Prometheus from 'prom-client';
 import { RateLimiterRedis } from 'rate-limiter-flexible';
 import { redisClient } from 'configs/databases';
+import { StatusCodes } from 'http-status-codes';
+
+const { TOO_MANY_REQUESTS, BAD_REQUEST } = StatusCodes;
 
 const {
   MAX_REQ_PER_INTERVAL = 10,
@@ -64,11 +67,12 @@ export const fixedWindowRateLimiter = async (req, res, next) => {
         await softThrottleLimiter.consume(clientId, 1);
       if (remainingPoints <= 0) {
         const retryAfterSeconds = Math.ceil(msBeforeNext / 1000);
-        return res.status(429).json({
+        return res.status(TOO_MANY_REQUESTS).json({
           error: `Too many requests, please try again in ${retryAfterSeconds} seconds`,
         });
       } else next();
-    } else return res.status(400).json({ error: errorMsg.missingData() });
+    } else
+      return res.status(BAD_REQUEST).json({ error: errorMsg.missingData() });
   } catch (softError) {
     try {
       // Fallback to hard throttle if there is an error with soft throttle
@@ -86,9 +90,9 @@ export const fixedWindowRateLimiter = async (req, res, next) => {
       };
       res.set(headers);
       const retryAfterSeconds = Math.ceil(hardError.msBeforeNext / 1000);
-      return res.status(429).json({
-        error: `Too many requests, please try again in ${retryAfterSeconds} seconds`,
-      });
+      hardError.status = TOO_MANY_REQUESTS;
+      hardError.message = `Too many requests, please try again in ${retryAfterSeconds} seconds`;
+      next(hardError);
     }
   }
 };

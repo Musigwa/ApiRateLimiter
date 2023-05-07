@@ -6,7 +6,7 @@ import {
   otherErrorsHandler,
   fixedWindowRateLimiter,
   prometheusMonitor,
-} from '../middlewares';
+} from 'middlewares';
 import serviceRouter from './service';
 import authRouter from './auth';
 

@@ -1,5 +1,6 @@
 import { mongoConnection, redisClient } from 'configs/databases';
 import mongoose from 'mongoose';
+import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 
 export { fixedWindowRateLimiter, prometheusMonitor } from './service';
 export { timeoutHandler, errorHandler, notFoundHandler } from './error';
@@ -7,10 +8,11 @@ export { checkAuth, userLogout } from './auth';
 
 const { MONGO_DB_URI } = process.env;
 const dbOptions = { maxPoolSize: 10, autoCreate: true };
+const { SERVICE_UNAVAILABLE } = StatusCodes;
 
 const mongoConnectionErrorHandler = (error) => {
   console.log('Error connecting to the database:', error.message);
-  error.status = 503;
+  error.status = SERVICE_UNAVAILABLE;
   throw error;
 };
 // Set up the MongoDB connection
@@ -26,7 +28,9 @@ export const connectMongo = async (req, res, next) => {
         .catch(mongoConnectionErrorHandler);
     }
   } catch (error) {
-    res.status(503).json({ error: 'Service Unavailable' });
+    error.status = SERVICE_UNAVAILABLE;
+    error.message = ReasonPhrases.SERVICE_UNAVAILABLE;
+    next(error);
     console.error('Failed to connect to MongoDB', error);
   }
 };
@@ -44,7 +48,9 @@ export const connectRedis = async (req, res, next) => {
         .catch(mongoConnectionErrorHandler);
     }
   } catch (error) {
-    res.status(503).json({ error: 'Service Unavailable' });
+    error.status = SERVICE_UNAVAILABLE;
+    error.message = ReasonPhrases.SERVICE_UNAVAILABLE;
+    next(error);
     console.error('Failed to connect to Redis', error);
   }
 };

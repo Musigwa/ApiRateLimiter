@@ -2,46 +2,42 @@ import User from 'models/User';
 import bcrypt from 'bcrypt';
 import { UserSchema } from 'validations';
 import { StatusCodes } from 'http-status-codes';
+import { errorMessage, successMessage } from '@constants';
 
-const { BAD_REQUEST, CREATED, INTERNAL_SERVER_ERROR, UNAUTHORIZED, OK } =
-  StatusCodes;
+const { BAD_REQUEST, CREATED, UNAUTHORIZED, OK, CONFLICT } = StatusCodes;
 
-export const createAccount = async (req, res) => {
+export const createAccount = async (req, res, next) => {
   const { email, password, firstName, lastName } = req.body;
   try {
-    const err = new Error('Failed to create user account');
+    const err = new Error(errorMessage[BAD_REQUEST]);
     err.status = BAD_REQUEST;
     const { error } = UserSchema.validate(req.body);
     if (error) {
       err.message = error.details[0].message;
       throw err;
     }
-    const existingUser = await User.findOne({ email: email });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      err.message = 'User already exists';
+      err.message = errorMessage[CONFLICT](User.modelName);
       throw err;
     }
     const newUser = new User({ email, password, firstName, lastName });
     const createdUser = await newUser.save();
     res.set('X-Access-Token', createdUser.generateAccessToken());
     return res.status(CREATED).json({
-      message: 'User created successfully',
+      message: errorMessage[CREATED](User.modelName),
       data: createdUser.toJSON(),
     });
   } catch (error) {
     console.log(error);
-    const {
-      status = INTERNAL_SERVER_ERROR,
-      message = 'Internal Server Error',
-    } = error;
-    return res.status(status).json({ error: message });
+    next(error);
   }
 };
 
-export const userLogin = async (req, res) => {
+export const userLogin = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const err = new Error('Please provide valid credentials');
+    const err = new Error(errorMessage[UNAUTHORIZED]);
     err.status = UNAUTHORIZED;
     const user = await User.findOne({ email });
     if (!user) throw err;
@@ -49,15 +45,10 @@ export const userLogin = async (req, res) => {
     if (!validPassword) throw err;
     res.set('X-Access-Token', user.generateAccessToken());
     return res.status(OK).json({
-      message: 'You are successfully authenticated!',
+      message: successMessage[OK]('authenticated'),
       data: user.toJSON(),
     });
   } catch (error) {
-    // console.log(error);
-    const {
-      status = INTERNAL_SERVER_ERROR,
-      message = 'Internal Server Error',
-    } = error;
-    return res.status(status).json({ error: message });
+    next(error);
   }
 };
